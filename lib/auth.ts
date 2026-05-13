@@ -21,21 +21,26 @@ export const authOptions: Record<string, any> = {
     // their DB id + role in the JWT so every subsequent request is free.
     async jwt({ token, user }: { token: JWT; user?: { email?: string | null; name?: string | null; image?: string | null } }) {
       if (user?.email) {
-        const dbUser = await prisma.user.upsert({
-          where: { email: user.email },
-          create: {
-            email: user.email,
-            name: user.name ?? null,
-            image: user.image ?? null,
-            role: 'ceo',
-          },
-          update: {
-            name: user.name ?? undefined,
-            image: user.image ?? undefined,
-          },
-        });
-        token.id = dbUser.id;
-        token.role = dbUser.role;
+        try {
+          const dbUser = await prisma.user.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              name: user.name ?? null,
+              image: user.image ?? null,
+              role: 'ceo',
+            },
+            update: {
+              name: user.name ?? undefined,
+              image: user.image ?? undefined,
+            },
+          });
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+        } catch (err) {
+          console.error('JWT callback DB error:', err);
+          token.role = 'ceo';
+        }
       }
       return token;
     },
