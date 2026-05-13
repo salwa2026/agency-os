@@ -1,0 +1,476 @@
+/* ============================================================
+   NA MEDIA AGENCY — Extras & New Sections
+   ============================================================ */
+
+/* ---- Logo Marquee / Clients ---- */
+.clients-section {
+  padding: 48px 0;
+  background: var(--bg-2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.clients-header {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.clients-header p {
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--gray-500);
+}
+.clients-header strong {
+  color: var(--green);
+}
+.marquee-wrapper {
+  position: relative;
+  overflow: hidden;
+  mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 15%, black 85%, transparent);
+}
+.marquee-track {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  width: max-content;
+  animation: marquee-scroll 28s linear infinite;
+}
+.marquee-wrapper:hover .marquee-track {
+  animation-play-state: paused;
+}
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.logo-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 44px;
+  height: 56px;
+  opacity: .38;
+  transition: opacity .3s ease;
+  flex-shrink: 0;
+}
+.logo-pill:hover { opacity: .9; }
+.logo-pill svg { height: 28px; width: auto; }
+.logo-pill .logo-text {
+  font-family: var(--font-h);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: var(--white);
+  white-space: nowrap;
+}
+.logo-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--border-2);
+  flex-shrink: 0;
+}
+
+/* ---- Notre Process ---- */
+.process-section { background: var(--bg); }
+.process-timeline {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0;
+  position: relative;
+  margin-top: 60px;
+}
+.process-timeline::before {
+  content: '';
+  position: absolute;
+  top: 28px;
+  left: calc(10% + 14px);
+  right: calc(10% + 14px);
+  height: 2px;
+  background: linear-gradient(90deg, var(--green), rgba(126,217,85,.3));
+}
+.process-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 12px;
+  position: relative;
+}
+.process-num {
+  width: 56px;
+  height: 56px;
+  background: var(--card);
+  border: 2px solid var(--green-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-h);
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--green);
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+  transition: var(--t);
+}
+.process-step:hover .process-num {
+  background: var(--green);
+  color: #0B0D14;
+  border-color: var(--green);
+  box-shadow: 0 0 30px rgba(126,217,85,.3);
+}
+.process-step h4 {
+  font-size: .95rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--white);
+}
+.process-step p {
+  font-size: .82rem;
+  color: var(--gray-500);
+  line-height: 1.6;
+}
+
+/* ---- Résultats / Performance ---- */
+.results-section { background: var(--bg-2); }
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
+}
+.result-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px 28px;
+  text-align: center;
+  transition: var(--t);
+  position: relative;
+  overflow: hidden;
+}
+.result-card::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--green);
+  transform: scaleX(0);
+  transition: var(--t);
+}
+.result-card:hover { border-color: var(--green-border); transform: translateY(-4px); }
+.result-card:hover::before { transform: scaleX(1); }
+.result-value {
+  font-family: var(--font-h);
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--white);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.result-value span { color: var(--green); }
+.result-label {
+  font-size: .9rem;
+  color: var(--gray-400);
+  font-weight: 500;
+}
+.result-icon {
+  width: 44px;
+  height: 44px;
+  background: var(--green-glow);
+  border: 1px solid var(--green-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+  color: var(--green);
+}
+.result-icon svg { width: 20px; height: 20px; }
+
+/* ---- Testimonials ---- */
+.testimonials-section { background: var(--bg); }
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+.testimonial-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 36px;
+  transition: var(--t);
+  position: relative;
+}
+.testimonial-card::before {
+  content: '"';
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  font-family: var(--font-h);
+  font-size: 5rem;
+  font-weight: 900;
+  color: var(--green);
+  opacity: .12;
+  line-height: 1;
+}
+.testimonial-card:hover { border-color: var(--green-border); transform: translateY(-4px); }
+.testimonial-stars {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 18px;
+}
+.testimonial-stars svg { width: 16px; height: 16px; color: var(--green); }
+.testimonial-text {
+  font-size: .95rem;
+  color: var(--gray-300);
+  line-height: 1.78;
+  margin-bottom: 24px;
+  font-style: italic;
+}
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.testimonial-avatar {
+  width: 44px;
+  height: 44px;
+  background: var(--green-glow);
+  border: 2px solid var(--green-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-h);
+  font-size: .95rem;
+  font-weight: 800;
+  color: var(--green);
+  flex-shrink: 0;
+}
+.testimonial-name { font-weight: 700; font-size: .95rem; color: var(--white); }
+.testimonial-role { font-size: .8rem; color: var(--gray-500); }
+
+/* ---- Audit Gratuit ---- */
+.audit-section {
+  background: var(--bg-2);
+  padding: 80px 0;
+}
+.audit-box {
+  background: linear-gradient(135deg, var(--card), #0a1a0a);
+  border: 1px solid var(--green-border);
+  border-radius: var(--radius-xl);
+  padding: 72px 60px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+.audit-box::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(126,217,85,.12), transparent 70%);
+  pointer-events: none;
+}
+.audit-content .section-tag { margin-bottom: 16px; }
+.audit-content h2 { font-size: clamp(1.6rem,3.5vw,2.4rem); margin-bottom: 14px; }
+.audit-content p { font-size: 1rem; color: var(--gray-400); max-width: 480px; }
+.audit-checklist { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+.audit-check-item { display: flex; align-items: center; gap: 10px; font-size: .92rem; color: var(--gray-300); }
+.audit-check-item svg { width: 16px; height: 16px; color: var(--green); flex-shrink: 0; }
+.audit-cta { flex-shrink: 0; text-align: center; }
+.audit-cta .btn { margin-bottom: 12px; }
+.audit-note { font-size: .8rem; color: var(--gray-500); text-align: center; }
+
+/* ---- Web Creation Service Card ---- */
+.service-card.new-service {
+  border-color: var(--green-border);
+  background: linear-gradient(145deg, var(--card), rgba(126,217,85,.04));
+}
+.service-badge-new {
+  display: inline-block;
+  background: var(--green);
+  color: #0B0D14;
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 100px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* ---- Footer enhanced ---- */
+.footer-legal {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.footer-legal-links { display: flex; gap: 20px; flex-wrap: wrap; }
+.footer-legal-link { font-size: .78rem; color: var(--gray-500); text-decoration: none; transition: var(--t-fast); }
+.footer-legal-link:hover { color: var(--green); }
+.footer-legal-text { font-size: .78rem; color: var(--gray-500); }
+
+/* ---- Responsive extras ---- */
+@media (max-width: 1100px) {
+  .results-grid { grid-template-columns: repeat(2, 1fr); }
+  .process-timeline { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .process-timeline::before { display: none; }
+  .audit-box { grid-template-columns: 1fr; padding: 48px 36px; }
+  .audit-cta { text-align: left; }
+}
+@media (max-width: 900px) {
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 640px) {
+  .process-timeline { grid-template-columns: 1fr; }
+  .results-grid { grid-template-columns: 1fr; }
+  .audit-box { padding: 32px 24px; }
+}
+
+/* ============================================================
+   LOGO IMAGE
+   ============================================================ */
+.logo-img {
+  height: 46px;
+  width: auto;
+  display: block;
+  mix-blend-mode: screen; /* removes the black background on dark bg */
+}
+@media (max-width: 640px) { .logo-img { height: 38px; } }
+
+/* ============================================================
+   BLOG CARD — photo backgrounds
+   ============================================================ */
+.blog-img {
+  background-size: cover !important;
+  background-position: center !important;
+}
+.blog-img-overlay {
+  background: linear-gradient(
+    160deg,
+    rgba(11,13,20,.62) 0%,
+    rgba(11,13,20,.52) 100%
+  ) !important;
+}
+
+/* ============================================================
+   ARTICLE HEADER — photo background
+   ============================================================ */
+.article-header.has-photo {
+  background-size: cover !important;
+  background-position: center top !important;
+  background-attachment: fixed;
+}
+.article-header.has-photo::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(11,13,20,.82) 0%,
+    rgba(11,13,20,.94) 100%
+  ) !important;
+  z-index: 1;
+}
+.article-header.has-photo .container { position: relative; z-index: 2; }
+
+/* ============================================================
+   HERO — subtle background photo
+   ============================================================ */
+.hero-photo-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: .07;
+  z-index: 0;
+}
+.hero-bg { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.hero > .container { position: relative; z-index: 2; }
+
+/* ============================================================
+   ABOUT VISUAL — photo background (homepage & about page)
+   ============================================================ */
+.about-visual.has-photo {
+  background-size: cover;
+  background-position: center;
+}
+.about-visual.has-photo::before {
+  background: linear-gradient(135deg, rgba(11,13,20,.72), rgba(11,13,20,.42)) !important;
+}
+.about-visual.has-photo .about-logo-inner {
+  position: relative;
+  z-index: 2;
+}
+
+/* ============================================================
+   PAGE HEADER — photo background (services, about, etc.)
+   ============================================================ */
+.page-header.has-photo {
+  background-size: cover !important;
+  background-position: center top !important;
+  position: relative;
+}
+.page-header.has-photo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(11,13,20,.78) 0%, rgba(11,13,20,.92) 100%);
+  z-index: 0;
+}
+.page-header.has-photo .container { position: relative; z-index: 1; }
+
+/* ============================================================
+   SERVICE DETAIL — photo visual
+   ============================================================ */
+.service-detail-visual.has-photo {
+  background-size: cover !important;
+  background-position: center !important;
+}
+.service-detail-visual.has-photo::before {
+  background: linear-gradient(135deg, rgba(11,13,20,.55), rgba(11,13,20,.2)) !important;
+}
+.service-detail-visual.has-photo svg { opacity: 0; }
+
+/* ============================================================
+   CONTACT DETAIL — clickable links
+   ============================================================ */
+.contact-detail-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color .2s ease;
+}
+.contact-detail-link:hover { color: var(--green); }
+
+/* ============================================================
+   CONTACT FORM — select dropdown readability fix
+   ============================================================ */
+select.form-input {
+  background-color: #0B0D14 !important;
+  color: #fff !important;
+  -webkit-appearance: none;
+  appearance: none;
+}
+select.form-input option {
+  background-color: #0B0D14;
+  color: #fff;
+}
+select.form-input option:checked {
+  background-color: #7ED955;
+  color: #0B0D14;
+}
+select.form-input:focus {
+  border-color: #7ED955;
+  outline: none;
+}

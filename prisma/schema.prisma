@@ -1,0 +1,597 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  role          UserRole  @default(viewer)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  projects      ProjectMember[]
+  tasks         Task[]          @relation("AssignedUser")
+  comments      Comment[]
+  activityLogs  ActivityLog[]
+  reviewedOutputs AgentOutput[] @relation("ReviewedBy")
+  approvedDeliverables Deliverable[] @relation("ApprovedBy")
+  createdCampaigns Campaign[]   @relation("CampaignCreator")
+  createdBriefs      ContentBrief[]      @relation("BriefCreator")
+  uploadedFiles      DataFile[]          @relation("DataFileUploader")
+  createdAnalyses    DataAnalysis[]      @relation("AnalysisCreator")
+  brandAssets        BrandAsset[]        @relation("BrandAssetCreator")
+  growthExperiments  GrowthExperiment[]  @relation("ExperimentCreator")
+  accounts       Account[]
+  sessions       Session[]
+}
+
+enum UserRole {
+  ceo
+  manager
+  viewer
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Projects ────────────────────────────────────────────────────────────────
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?       @db.Text
+  industry    String?
+  status      ProjectStatus @default(draft)
+  progress    Int           @default(0)
+  startDate   DateTime?
+  endDate     DateTime?
+  budget      Float?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  members       ProjectMember[]
+  tasks         Task[]
+  kpis          Kpi[]
+  budgetItems   BudgetItem[]
+  deliverables  Deliverable[]
+  activityLogs  ActivityLog[]
+  campaigns     Campaign[]
+  keywords      Keyword[]
+  contentBriefs ContentBrief[]
+  dataFiles     DataFile[]
+  dataAnalyses  DataAnalysis[]
+  brandProfile       BrandProfile?
+  brandAssets        BrandAsset[]
+  growthExperiments  GrowthExperiment[]
+}
+
+enum ProjectStatus {
+  draft
+  active
+  paused
+  completed
+  archived
+  cancelled
+}
+
+model ProjectMember {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  role      String   @default("member")
+  joinedAt  DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+// ─── Tasks ────────────────────────────────────────────────────────────────────
+
+model Task {
+  id            String       @id @default(cuid())
+  projectId     String
+  title         String
+  description   String?      @db.Text
+  status        TaskStatus   @default(backlog)
+  priority      TaskPriority @default(medium)
+  orderIndex    Int          @default(0)
+  assignedType  AssignedType @default(unassigned)
+  assignedUserId  String?
+  assignedAgentId String?
+  parentTaskId  String?
+  dueDate       DateTime?
+  tags          String[]
+  estimatedHours Float?
+  subtasks      Json?        @default("[]")
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedUser  User?         @relation("AssignedUser", fields: [assignedUserId], references: [id])
+  assignedAgent Agent?        @relation(fields: [assignedAgentId], references: [id])
+  parentTask    Task?         @relation("SubTasks", fields: [parentTaskId], references: [id])
+  subTasks      Task[]        @relation("SubTasks")
+  comments      Comment[]
+  attachments   Attachment[]
+  agentCommands AgentCommand[]
+  agentOutputs  AgentOutput[]
+  deliverables  Deliverable[]
+  campaignTasks CampaignAgentTask[]
+}
+
+enum TaskStatus {
+  backlog
+  todo
+  in_progress
+  review
+  done
+}
+
+enum TaskPriority {
+  low
+  medium
+  high
+  urgent
+}
+
+enum AssignedType {
+  unassigned
+  human
+  agent
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  taskId    String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  taskId    String
+  name      String
+  url       String
+  mimeType  String?
+  size      Int?
+  createdAt DateTime @default(now())
+
+  task Task @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+// ─── Agents ──────────────────────────────────────────────────────────────────
+
+model Agent {
+  id          String      @id @default(cuid())
+  name        String
+  type        String      @unique
+  emoji       String
+  description String?
+  status      AgentStatus @default(available)
+  createdAt   DateTime    @default(now())
+
+  tasks        Task[]
+  commands     AgentCommand[]
+  outputs      AgentOutput[]
+  activityLogs ActivityLog[]
+}
+
+enum AgentStatus {
+  available
+  busy
+  disabled
+}
+
+model AgentCommand {
+  id               String        @id @default(cuid())
+  taskId           String
+  agentId          String?
+  agentType        String
+  command          String        @db.Text
+  status           CommandStatus @default(queued)
+  version          Int           @default(1)
+  revisionNote     String?       @db.Text
+  previousOutputId String?
+  outputId         String?
+  errorMessage     String?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  failedAt         DateTime?
+  createdAt        DateTime      @default(now())
+
+  task           Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  agent          Agent?       @relation(fields: [agentId], references: [id])
+  previousOutput AgentOutput? @relation("PreviousOutput", fields: [previousOutputId], references: [id])
+  output         AgentOutput? @relation("CommandOutput", fields: [outputId], references: [id])
+}
+
+enum CommandStatus {
+  queued
+  processing
+  completed
+  failed
+  cancelled
+}
+
+model AgentOutput {
+  id             String       @id @default(cuid())
+  commandId      String
+  taskId         String
+  agentId        String?
+  content        String       @db.Text
+  command        String       @db.Text
+  version        Int          @default(1)
+  status         OutputStatus @default(pending_review)
+  revisionNote   String?      @db.Text
+  reviewedAt     DateTime?
+  reviewedById   String?
+  createdAt      DateTime     @default(now())
+
+  task        Task          @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  agent       Agent?        @relation(fields: [agentId], references: [id])
+  reviewedBy  User?         @relation("ReviewedBy", fields: [reviewedById], references: [id])
+  deliverable Deliverable?
+  commandsAsOutput AgentCommand[] @relation("CommandOutput")
+  commandsAsPrevious AgentCommand[] @relation("PreviousOutput")
+}
+
+enum OutputStatus {
+  pending_review
+  approved
+  revision_requested
+  rejected
+}
+
+// ─── Deliverables ─────────────────────────────────────────────────────────────
+
+model Deliverable {
+  id            String   @id @default(cuid())
+  projectId     String
+  taskId        String?
+  agentOutputId String?  @unique
+  title         String
+  content       String   @db.Text
+  type          String
+  status        String   @default("approved")
+  approvedById  String?
+  approvedAt    DateTime?
+  createdAt     DateTime @default(now())
+
+  project     Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  task        Task?        @relation(fields: [taskId], references: [id])
+  agentOutput AgentOutput? @relation(fields: [agentOutputId], references: [id])
+  approvedBy  User?        @relation("ApprovedBy", fields: [approvedById], references: [id])
+}
+
+// ─── KPIs ────────────────────────────────────────────────────────────────────
+
+model Kpi {
+  id          String   @id @default(cuid())
+  projectId   String
+  name        String
+  value       Float    @default(0)
+  target      Float?
+  unit        String?
+  period      String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── Budget ──────────────────────────────────────────────────────────────────
+
+model BudgetItem {
+  id          String   @id @default(cuid())
+  projectId   String
+  category    String
+  description String?
+  amount      Float
+  spent       Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── Campaigns ───────────────────────────────────────────────────────────────
+
+model Campaign {
+  id          String         @id @default(cuid())
+  projectId   String
+  name        String
+  type        String
+  status      CampaignStatus @default(draft)
+  brief       Json
+  totalTasks  Int            @default(0)
+  doneTasks   Int            @default(0)
+  launchedAt  DateTime?
+  createdById String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  project     Project              @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy   User?                @relation("CampaignCreator", fields: [createdById], references: [id])
+  agentTasks  CampaignAgentTask[]
+}
+
+enum CampaignStatus {
+  draft
+  active
+  completed
+  paused
+  cancelled
+}
+
+model CampaignAgentTask {
+  id             String  @id @default(cuid())
+  campaignId     String
+  taskId         String
+  agentType      String
+  phase          Int     @default(1)
+  phaseName      String?
+  commandTemplate String?
+  orderIndex     Int     @default(0)
+  createdAt      DateTime @default(now())
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  task     Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+}
+
+// ─── SEO ──────────────────────────────────────────────────────────────────────
+
+model Keyword {
+  id               String    @id @default(cuid())
+  projectId        String
+  keyword          String
+  targetUrl        String?
+  searchVolume     Int?
+  difficulty       Int?
+  currentPosition  Int?
+  previousPosition Int?
+  targetPosition   Int       @default(10)
+  tags             String[]
+  notes            String?   @db.Text
+  tracked          Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  project       Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  positions     KeywordPosition[]
+  contentBriefs ContentBrief[]
+}
+
+model KeywordPosition {
+  id        String   @id @default(cuid())
+  keywordId String
+  position  Int
+  url       String?
+  checkedAt DateTime @default(now())
+
+  keyword Keyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+}
+
+model ContentBrief {
+  id                String             @id @default(cuid())
+  projectId         String
+  keywordId         String?
+  targetKeyword     String
+  secondaryKeywords String[]
+  title             String
+  metaTitle         String?
+  metaDescription   String?
+  outline           Json?
+  wordCountTarget   Int                @default(1500)
+  contentType       String             @default("blog_post")
+  status            ContentBriefStatus @default(draft)
+  priority          String             @default("medium")
+  dueDate           DateTime?
+  publishedUrl      String?
+  notes             String?            @db.Text
+  aiGenerated       Boolean            @default(false)
+  createdById       String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  keyword    Keyword?  @relation(fields: [keywordId], references: [id])
+  createdBy  User      @relation("BriefCreator", fields: [createdById], references: [id])
+}
+
+enum ContentBriefStatus {
+  draft
+  ready
+  in_progress
+  in_review
+  published
+  archived
+}
+
+// ─── Growth ───────────────────────────────────────────────────────────────────
+
+model GrowthExperiment {
+  id          String           @id @default(cuid())
+  projectId   String
+  createdById String
+  name        String
+  hypothesis  String           @db.Text
+  variantA    String?          @db.Text
+  variantB    String?          @db.Text
+  metric      String?
+  targetLift  Float?
+  status      ExperimentStatus @default(draft)
+  winner      String?
+  resultA     Float?
+  resultB     Float?
+  startDate   DateTime?
+  endDate     DateTime?
+  notes       String?          @db.Text
+  tags        String[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy User    @relation("ExperimentCreator", fields: [createdById], references: [id])
+}
+
+enum ExperimentStatus {
+  draft
+  running
+  paused
+  complete
+  archived
+}
+
+// ─── Branding ─────────────────────────────────────────────────────────────────
+
+model BrandProfile {
+  id                   String    @id @default(cuid())
+  projectId            String    @unique
+  companyName          String?
+  tagline              String?
+  mission              String?   @db.Text
+  vision               String?   @db.Text
+  values               String[]
+  primaryColor         String?
+  secondaryColor       String?
+  accentColor          String?
+  neutralColor         String?
+  primaryFont          String?
+  secondaryFont        String?
+  toneOfVoice          String[]
+  targetAudience       String?   @db.Text
+  competitors          String[]
+  industry             String?
+  logoUrl              String?
+  guidelinesDoc        String?   @db.Text
+  guidelinesGeneratedAt DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model BrandAsset {
+  id          String   @id @default(cuid())
+  projectId   String
+  createdById String
+  name        String
+  description String?
+  category    String   @default("other")
+  url         String?
+  mimeType    String?
+  tags        String[]
+  createdAt   DateTime @default(now())
+
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy User    @relation("BrandAssetCreator", fields: [createdById], references: [id])
+}
+
+// ─── Data & Excel ────────────────────────────────────────────────────────────
+
+model DataFile {
+  id           String   @id @default(cuid())
+  projectId    String
+  uploadedById String
+  name         String
+  originalName String
+  mimeType     String
+  size         Int
+  rowCount     Int      @default(0)
+  columnCount  Int      @default(0)
+  headers      String[]
+  preview      Json
+  fullData     Json
+  createdAt    DateTime @default(now())
+
+  project      Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedBy   User           @relation("DataFileUploader", fields: [uploadedById], references: [id])
+  analyses     DataAnalysis[]
+}
+
+model DataAnalysis {
+  id          String         @id @default(cuid())
+  fileId      String
+  projectId   String
+  question    String?        @db.Text
+  title       String?
+  summary     String?        @db.Text
+  insights    Json?
+  metrics     Json?
+  charts      Json?
+  recommendations Json?
+  rawOutput   String?        @db.Text
+  status      AnalysisStatus @default(pending)
+  createdById String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  file        DataFile @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy   User     @relation("AnalysisCreator", fields: [createdById], references: [id])
+}
+
+enum AnalysisStatus {
+  pending
+  processing
+  complete
+  failed
+}
+
+// ─── Activity Log ─────────────────────────────────────────────────────────────
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  projectId   String
+  userId      String?
+  agentId     String?
+  action      String
+  entityType  String
+  entityId    String
+  metadata    Json     @default("{}")
+  createdAt   DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+  agent   Agent?  @relation(fields: [agentId], references: [id])
+}

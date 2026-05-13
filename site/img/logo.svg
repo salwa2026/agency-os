@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 310 330" fill="none">
+  <!-- na monogram — white thick strokes -->
+  <!-- n: left descending leg -->
+  <path d="M28 188 L28 80" stroke="white" stroke-width="21" stroke-linecap="round"/>
+  <!-- n: first arch (left) -->
+  <path d="M28 80 C28 18 170 18 170 80" stroke="white" stroke-width="21" fill="none" stroke-linecap="round"/>
+  <!-- shared middle leg -->
+  <path d="M170 80 L170 138" stroke="white" stroke-width="21" stroke-linecap="round"/>
+  <!-- a: second arch (right, top of a) -->
+  <path d="M170 80 C170 18 282 18 282 80" stroke="white" stroke-width="21" fill="none" stroke-linecap="round"/>
+  <!-- a: right descending leg -->
+  <path d="M282 80 L282 248" stroke="white" stroke-width="21" stroke-linecap="round"/>
+  <!-- a: bowl bottom -->
+  <path d="M170 138 C170 218 282 218 282 138" stroke="white" stroke-width="21" fill="none" stroke-linecap="round"/>
+  <!-- "Media Agency" in green -->
+  <text x="28" y="285" font-family="Outfit,Arial,sans-serif" font-weight="600" font-size="31" fill="#7ED955" letter-spacing="0.8">Media Agency</text>
+  <!-- "NOUS CRÉONS L'IMPACT." in white -->
+  <text x="30" y="313" font-family="Outfit,Arial,sans-serif" font-weight="500" font-size="13" fill="white" letter-spacing="2.8">NOUS CRÉONS L'IMPACT.</text>
+</svg>
