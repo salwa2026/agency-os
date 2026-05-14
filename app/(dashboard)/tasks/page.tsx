@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -26,7 +27,8 @@ async function getAllTasks(userId: string) {
 
 export default async function TasksPage() {
   const session = await getServerSession(authOptions);
-  const tasks = await getAllTasks(session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const tasks = await getAllTasks(session.user.id);
   const pendingReview = tasks.filter((t) => t.agentOutputs.length > 0).length;
 
   return (

@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -25,7 +26,8 @@ async function getData(userId: string) {
 
 export default async function GrowthPage() {
   const session = await getServerSession(authOptions);
-  const { projects, experiments } = await getData(session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const { projects, experiments } = await getData(session.user.id);
 
   const running = experiments.filter((e) => e.status === 'running').length;
   const complete = experiments.filter((e) => e.status === 'complete').length;

@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -32,7 +33,8 @@ async function getDataFiles(userId: string) {
 
 export default async function DataPage() {
   const session = await getServerSession(authOptions);
-  const { projects, files } = await getDataFiles(session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const { projects, files } = await getDataFiles(session.user.id);
 
   return (
     <>

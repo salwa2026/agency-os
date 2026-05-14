@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -30,7 +31,8 @@ async function getBrandingData(userId: string) {
 
 export default async function BrandingPage() {
   const session = await getServerSession(authOptions);
-  const { projects, profiles, assets } = await getBrandingData(session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const { projects, profiles, assets } = await getBrandingData(session.user.id);
 
   return (
     <>

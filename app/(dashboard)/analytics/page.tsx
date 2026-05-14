@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -32,7 +33,8 @@ async function getAnalyticsData(userId: string) {
 
 export default async function AnalyticsPage() {
   const session = await getServerSession(authOptions);
-  const data = await getAnalyticsData(session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const data = await getAnalyticsData(session.user.id);
 
   return (
     <>

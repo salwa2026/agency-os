@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -32,13 +32,15 @@ async function getProject(id: string, userId: string) {
 
 export async function generateMetadata({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  const result = await getProject(params.id, session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const result = await getProject(params.id, session.user.id);
   return { title: result?.project.name ?? 'Project' };
 }
 
 export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
-  const result = await getProject(params.id, session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const result = await getProject(params.id, session.user.id);
 
   if (!result) notFound();
 
@@ -53,7 +55,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
       <ProjectDetailClient
         project={JSON.parse(JSON.stringify(project))}
         initialTasks={JSON.parse(JSON.stringify(tasks))}
-        currentUserId={session!.user.id}
+        currentUserId={session.user.id}
       />
     </>
   );

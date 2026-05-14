@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -38,7 +38,8 @@ async function getCampaign(id: string, userId: string) {
 
 export default async function CampaignDetailPage({ params }: Props) {
   const session = await getServerSession(authOptions);
-  const campaign = await getCampaign(params.id, session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const campaign = await getCampaign(params.id, session.user.id);
 
   if (!campaign) notFound();
 

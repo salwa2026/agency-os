@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -37,7 +38,8 @@ async function getSeoData(userId: string) {
 
 export default async function SeoPage() {
   const session = await getServerSession(authOptions);
-  const { projects, keywords, briefs } = await getSeoData(session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const { projects, keywords, briefs } = await getSeoData(session.user.id);
 
   const totalKeywords = keywords.length;
   const trackedKeywords = keywords.filter((k) => k.tracked && k.currentPosition != null);

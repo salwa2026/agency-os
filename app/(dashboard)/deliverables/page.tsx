@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -20,7 +21,8 @@ async function getDeliverables(userId: string) {
 
 export default async function DeliverablesPage() {
   const session = await getServerSession(authOptions);
-  const deliverables = await getDeliverables(session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const deliverables = await getDeliverables(session.user.id);
 
   return (
     <>

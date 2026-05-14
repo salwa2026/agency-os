@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
@@ -23,7 +24,8 @@ async function getProjects(userId: string) {
 
 export default async function ProjectsPage() {
   const session = await getServerSession(authOptions);
-  const projects = await getProjects(session!.user.id);
+  if (!session?.user?.id) redirect('/login');
+  const projects = await getProjects(session.user.id);
 
   return (
     <>
